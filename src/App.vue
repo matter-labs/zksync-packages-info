@@ -2,10 +2,15 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 import HelloWorld from './components/HelloWorld.vue';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, Ref } from 'vue';
 
 import { Axios } from 'axios';
-
+interface Package {
+  name: string;
+  description: string;
+  repo: string;
+  version: string;
+}
 // const axios = new Axios({baseURL: https://registry.npmjs.org})
 const axios = new Axios({});
 
@@ -15,15 +20,14 @@ const packagesList = [
   '@matterlabs/hardhat-zksync-deploy',
   '@matterlabs/hardhat-zksync-vyper',
 ];
-const packagesInfo = ref([]);
+const packagesInfo: Ref<Package[]> = ref([]);
 
 async function retrievePackageInfo(name: string) {
   console.log(`Retrieving package info for ${name}`);
   const endpoint = `https://registry.npmjs.org/${name}`;
 
   const res = await axios.get(endpoint);
-  // const res = await fetch(endpoint);
-  // const data = await res.json();
+
   console.log(res.data);
   return res.data;
 }
@@ -31,8 +35,15 @@ async function retrievePackageInfo(name: string) {
 async function loadPackagesData() {
   packagesList.forEach(async (p) => {
     const res = await retrievePackageInfo(p);
+
+    const jsonData = JSON.parse(res);
     // @ts-ignore
-    packagesInfo.value.push(JSON.parse(res));
+    packagesInfo.value.push({
+      name: jsonData.name,
+      description: jsonData.description,
+      version: jsonData['dist-tags'].latest,
+      repo: jsonData.bugs.url,
+    } as Package);
     // packagesInfo.value.push(await retrievePackageInfo(p));
   });
 }
@@ -52,11 +63,11 @@ onMounted(() => {
     </a>
     <h1>zkSync packages info</h1>
 
-    <div v-for="p in packagesInfo" :key="p">
+    <div v-for="p in packagesInfo" :key="p.name">
       <h2>{{ p.name }}</h2>
       <p>{{ p.description }}</p>
-      <p>Latest version : v{{ p['dist-tags'].latest }}</p>
-      <!-- <p><a href="">Repository</a></p> -->
+      <p>Latest version : v{{ p.version }}</p>
+      <p><a :href="p.repo" target="_blank">repository</a></p>
       <hr />
     </div>
     <!-- {{ packagesInfo }} -->

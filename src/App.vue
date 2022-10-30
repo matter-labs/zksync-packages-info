@@ -42,7 +42,7 @@ async function loadPackagesData() {
       name: jsonData.name,
       description: jsonData.description,
       version: jsonData['dist-tags'].latest,
-      repo: jsonData.bugs.url,
+      repo: jsonData.bugs?.url || `https://npmjs.org/${jsonData.name}`,
     } as Package);
     // packagesInfo.value.push(await retrievePackageInfo(p));
   });
@@ -55,9 +55,6 @@ onMounted(() => {
 
 <template>
   <div>
-    <!-- <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a> -->
     <a href="https://zksync.io/" target="_blank">
       <img src="./assets/zkSync-logo.png" class="logo vue" alt="zkSync logo" />
     </a>
@@ -70,9 +67,7 @@ onMounted(() => {
       <p><a :href="p.repo" target="_blank">repository</a></p>
       <hr />
     </div>
-    <!-- {{ packagesInfo }} -->
   </div>
-  <!-- <HelloWorld msg="Vite + Vue" /> -->
 </template>
 
 <style scoped>

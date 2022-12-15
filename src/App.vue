@@ -16,9 +16,11 @@ const axios = new Axios({});
 
 const packagesList = [
   'zksync-web3',
+  '@matterlabs/zksync-contracts',
   '@matterlabs/hardhat-zksync-solc',
   '@matterlabs/hardhat-zksync-deploy',
   '@matterlabs/hardhat-zksync-vyper',
+  '@matterlabs/hardhat-zksync-chai-matchers',
 ];
 const packagesInfo: Ref<Package[]> = ref([]);
 
@@ -58,14 +60,27 @@ onMounted(() => {
     <a href="https://zksync.io/" target="_blank">
       <img src="./assets/zkSync-logo.png" class="logo vue" alt="zkSync logo" />
     </a>
-    <h1>zkSync packages info</h1>
-
-    <div v-for="p in packagesInfo" :key="p.name">
-      <h2>{{ p.name }}</h2>
-      <p>{{ p.description }}</p>
-      <p>Latest version : v{{ p.version }}</p>
-      <p><a :href="p.repo" target="_blank">repository</a></p>
-      <hr />
+    <h1>zkSync 2.0 packages</h1>
+    <h3 style="margin-bottom: 2rem">
+      Information about the different packages and SDKs released by MatterLabs
+      to interact with zkSync 2.0
+    </h3>
+    <p style="margin-bottom: 3rem">
+      Check out the
+      <a href="https://v2-docs.zksync.io/api/" target="_blank"
+        >SDK/Tools section of the docs</a
+      >
+      to learn more.
+    </p>
+    <hr />
+    <div class="grid">
+      <div v-for="p in packagesInfo" :key="p.name" class="item">
+        <h2>{{ p.name }}</h2>
+        <p>{{ p.description }}</p>
+        <p>Latest version : v{{ p.version }}</p>
+        <p><a :href="p.repo" target="_blank">repository</a></p>
+        <!-- <hr /> -->
+      </div>
     </div>
   </div>
 </template>
@@ -81,5 +96,16 @@ onMounted(() => {
 }
 .logo.vue:hover {
   filter: drop-shadow(0 0 2em #42b883aa);
+}
+
+.grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.item {
+  flex: 32%;
+  border: 1px solid gray;
 }
 </style>

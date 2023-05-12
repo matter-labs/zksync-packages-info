@@ -1,28 +1,52 @@
 <script setup lang="ts">
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import HelloWorld from './components/HelloWorld.vue';
-import { onMounted, ref, Ref } from 'vue';
+import { onMounted, ref, Ref } from "vue";
 
-import { Axios } from 'axios';
+import { Axios } from "axios";
 interface Package {
   name: string;
   description: string;
   repo: string;
   version: string;
 }
+
+interface Compiler {
+  name: string;
+  repo: string;
+
+  versions: any;
+}
 // const axios = new Axios({baseURL: https://registry.npmjs.org})
 const axios = new Axios({});
 
 const packagesList = [
-  'zksync-web3',
-  '@matterlabs/zksync-contracts',
-  '@matterlabs/hardhat-zksync-solc',
-  '@matterlabs/hardhat-zksync-deploy',
-  '@matterlabs/hardhat-zksync-vyper',
-  '@matterlabs/hardhat-zksync-chai-matchers',
+  "zksync-web3",
+  "@matterlabs/zksync-contracts",
+  "@matterlabs/hardhat-zksync-solc",
+  "@matterlabs/hardhat-zksync-deploy",
+  "@matterlabs/hardhat-zksync-vyper",
+  "@matterlabs/hardhat-zksync-chai-matchers",
+  "@matterlabs/hardhat-zksync-upgradable",
+  "@matterlabs/hardhat-zksync-verify",
 ];
+
+const compilersList = ["zksolc", "zkvyper"];
 const packagesInfo: Ref<Package[]> = ref([]);
+const compilersInfo: Ref<Compiler[]> = ref([]);
+
+async function retrieveCompilerInfo(name: string): Promise<Compiler> {
+  const endpoint = `https://raw.githubusercontent.com/matter-labs/${name}-bin/main/version.json`;
+
+  const res = await axios.get(endpoint);
+
+  console.log("compiler info :>> ", res.data);
+  return {
+    name: name,
+    versions: JSON.parse(res.data),
+    repo: `https://github.com/matter-labs/${name}-bin`,
+  };
+}
 
 async function retrievePackageInfo(name: string) {
   console.log(`Retrieving package info for ${name}`);
@@ -30,7 +54,7 @@ async function retrievePackageInfo(name: string) {
 
   const res = await axios.get(endpoint);
 
-  console.log(res.data);
+  // console.log(res.data);
   return res.data;
 }
 
@@ -43,10 +67,14 @@ async function loadPackagesData() {
     packagesInfo.value.push({
       name: jsonData.name,
       description: jsonData.description,
-      version: jsonData['dist-tags'].latest,
+      version: jsonData["dist-tags"].latest,
       repo: jsonData.bugs?.url || `https://npmjs.org/${jsonData.name}`,
     } as Package);
     // packagesInfo.value.push(await retrievePackageInfo(p));
+  });
+  compilersList.forEach(async (c) => {
+    const res = await retrieveCompilerInfo(c);
+    compilersInfo.value.push(res);
   });
 }
 
@@ -60,10 +88,10 @@ onMounted(() => {
     <a href="https://zksync.io/" target="_blank">
       <img src="./assets/zkSync-logo.png" class="logo vue" alt="zkSync logo" />
     </a>
-    <h1>zkSync 2.0 packages</h1>
+    <h1>zkSync Era developer tools</h1>
     <h3 style="margin-bottom: 2rem">
       Information about the different packages and SDKs released by MatterLabs
-      to interact with zkSync 2.0
+      to interact with zkSync Era
     </h3>
     <p style="margin-bottom: 3rem">
       Check out the
@@ -73,13 +101,28 @@ onMounted(() => {
       to learn more.
     </p>
     <hr />
+    <h3>Compilers</h3>
+    <div class="grid" style="margin-bottom: 2rem">
+      <div v-for="c in compilersInfo" :key="c.name" class="item">
+        <h2>{{ c.name }}</h2>
+        <!-- <p>{{ p.description }}</p> -->
+        <p>
+          <b>Latest version : v{{ c.versions.latest }}</b>
+        </p>
+        <p>Minimal recommended version : v{{ c.versions.minVersion }}</p>
+
+        <p><a :href="c.repo" target="_blank">repository</a></p>
+      </div>
+    </div>
+    <hr />
+    <h3>Plugins and libs</h3>
+
     <div class="grid">
       <div v-for="p in packagesInfo" :key="p.name" class="item">
         <h2>{{ p.name }}</h2>
         <p>{{ p.description }}</p>
         <p>Latest version : v{{ p.version }}</p>
         <p><a :href="p.repo" target="_blank">repository</a></p>
-        <!-- <hr /> -->
       </div>
     </div>
   </div>

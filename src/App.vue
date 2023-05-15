@@ -40,7 +40,6 @@ async function retrieveCompilerInfo(name: string): Promise<Compiler> {
 
   const res = await axios.get(endpoint);
 
-  console.log("compiler info :>> ", res.data);
   return {
     name: name,
     versions: JSON.parse(res.data),
@@ -54,7 +53,6 @@ async function retrievePackageInfo(name: string) {
 
   const res = await axios.get(endpoint);
 
-  // console.log(res.data);
   return res.data;
 }
 
@@ -76,6 +74,7 @@ async function loadPackagesData() {
     const res = await retrieveCompilerInfo(c);
     compilersInfo.value.push(res);
   });
+  
 }
 
 onMounted(() => {
@@ -84,71 +83,94 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
+  <main class="max-w-7xl mx-auto text-lg space-y-4 py-16">
     <a href="https://zksync.io/" target="_blank">
-      <img src="./assets/zkSync-logo.png" class="logo vue" alt="zkSync logo" />
+      <img
+        src="./assets/era-logo.png"
+        class="mx-auto h-64 py-12"
+        alt="zkSync logo"
+      />
     </a>
-    <h1>zkSync Era developer tools</h1>
-    <h3 style="margin-bottom: 2rem">
-      Information about the different packages and SDKs released by MatterLabs
-      to interact with zkSync Era
-    </h3>
-    <p style="margin-bottom: 3rem">
-      Check out the
-      <a href="https://v2-docs.zksync.io/api/" target="_blank"
-        >SDK/Tools section of the docs</a
-      >
-      to learn more.
-    </p>
-    <hr />
-    <h3>Compilers</h3>
-    <div class="grid" style="margin-bottom: 2rem">
-      <div v-for="c in compilersInfo" :key="c.name" class="item">
-        <h2>{{ c.name }}</h2>
-        <!-- <p>{{ p.description }}</p> -->
-        <p>
-          <b>Latest version : v{{ c.versions.latest }}</b>
-        </p>
-        <p>Minimal recommended version : v{{ c.versions.minVersion }}</p>
-
-        <p><a :href="c.repo" target="_blank">repository</a></p>
-      </div>
+    <div class="text-center text-xl space-y-4">
+      <h1 class="text-3xl md:text-5xl font-medium text-center mb-12">
+        zkSync Era developer tools
+      </h1>
+      <h3 class="mb-8 text-center">
+        Information about the different packages and SDKs by MatterLabs
+        to interact with zkSync Era
+      </h3>
+      <p>
+        Check out the
+        <a
+          href="https://v2-docs.zksync.io/api/"
+          target="_blank"
+          class="text-indigo-400 underline"
+          >SDK/Tools section of the docs</a
+        >
+        to learn more.
+      </p>
+      <p><p>
+        Update this page 
+        <a
+          href="https://github.com/matter-labs/zksync-packages-info/"
+          target="_blank"
+          class="text-indigo-400 underline"
+          >creating a PR in GitHub</a
+        >
+        .
+      </p></p>
     </div>
-    <hr />
-    <h3>Plugins and libs</h3>
-
-    <div class="grid">
-      <div v-for="p in packagesInfo" :key="p.name" class="item">
-        <h2>{{ p.name }}</h2>
-        <p>{{ p.description }}</p>
-        <p>Latest version : v{{ p.version }}</p>
-        <p><a :href="p.repo" target="_blank">repository</a></p>
-      </div>
+    <div class="text-center space-y-4 pt-12">
+      <h3 class="text-2xl md:text-3xl font-medium text-center">Compilers</h3>
+      <p><a href="https://era.zksync.io/docs/api/compiler-toolchain/overview.html" target="_blank" class="text-indigo-400 underline"> See documentation</a></p>
     </div>
-  </div>
+
+    <table class="border p-4 mx-auto text-left">
+      <tr class="border-b-2">
+        <th class="border p-4">Package name</th>
+        <th class="border p-4">Latest version</th>
+        <th class="border p-4">Minimal required version</th>
+        <th class="border p-4">Repository</th>
+      </tr>
+      <tr v-for="c in compilersInfo" :key="c.name" class="border-b">
+        <td class="border p-4 font-medium">{{ c.name }}</td>
+        <td class="border p-4">{{ c.versions.latest }}</td>
+        <td class="border p-4">v{{ c.versions.minVersion }}</td>
+        <td class="border p-4">
+          <a :href="c.repo" class="text-indigo-400 underline" target="_blank"
+            >repository</a
+          >
+        </td>
+      </tr>
+    </table>
+    <div class="text-center space-y-4 pt-12">
+      <h3 class="text-2xl md:text-3xl font-medium text-center pt-12">
+      Plugins and libraries
+      </h3>
+      <p><a href="https://era.zksync.io/docs/api/" target="_blank" class="text-indigo-400 underline"> See documentation</a></p>
+    </div>
+
+    <table class="border p-4 mx-auto text-left">
+      <tr class="border-b-2">
+        <th class="border p-4">Package name</th>
+        <th class="border p-4">Description</th>
+        <th class="border p-4">Latest version</th>
+        <th class="border p-4">Repository</th>
+      </tr>
+      <tr v-for="p in packagesInfo" :key="p.name" class="border-b">
+        <td class="border p-4 font-medium">{{ p.name }}</td>
+        <td class="border p-4">{{ p.description }}</td>
+        <td class="border p-4">v{{ p.version }}</td>
+        <td class="border p-4">
+          <a class="text-indigo-400 underline" :href="p.repo" target="_blank"
+            >repository</a
+          >
+        </td>
+      </tr>
+    </table>
+  </main>
 </template>
 
 <style scoped>
-.logo {
-  height: 8em;
-  padding: 1.5em;
-  will-change: filter;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
 
-.grid {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  width: 100%;
-}
-.item {
-  flex: 32%;
-  border: 1px solid gray;
-}
 </style>
